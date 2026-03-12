@@ -60,4 +60,28 @@ All tables use **snake_case** naming (PostgreSQL standard):
 
 ## Current Tables (2026-03-12)
 
-See `migrations/current_schema.sql` for full schema.
+**21 tables, all snake_case:**
+
+| Table | Purpose |
+|-------|---------|
+| `users` | User accounts with credits |
+| `sessions` | Auth sessions |
+| `accounts` | OAuth accounts |
+| `api_keys` | API key management |
+| `tasks` | Agent tasks |
+| `task_steps` | Task execution steps |
+| `tool_calls` | Tool execution logs |
+| `credit_ledger` | Credit transactions |
+| `user_agents` | User-defined agents |
+| `agents` | Agent templates |
+| `agent_actions` | Agent actions |
+| `agent_skills` | Agent skills |
+| `agent_mcp_tools` | MCP tool registry |
+| `installed_agents` | User-installed agents |
+| `memory_episodes` | Episodic memory |
+| `memory_knowledge` | Knowledge base |
+| `research_history` | Research logs |
+| `scheduled_research` | Scheduled research |
+| `oban_jobs` | Oban job queue |
+| `oban_peers` | Oban peer registry |
+| `schema_migrations` | Migration history |
