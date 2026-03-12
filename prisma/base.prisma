@@ -1,5 +1,6 @@
 // Aitlas Base Schema - Prisma
 // All tables use snake_case naming
+// Single source of truth for all Aitlas projects
 
 generator client {
   provider = "prisma-client-js"
@@ -32,8 +33,15 @@ model User {
   accounts        Account[]
   api_keys        ApiKey[]
   tasks           Task[]
-  agents          UserAgent[]
+  user_agents     UserAgent[]
+  installed_agents InstalledAgent[]
   credit_ledger   CreditLedgerEntry[]
+  webhooks        Webhook[]
+  subscriptions   Subscription[]
+  memory_episodes MemoryEpisode[]
+  memory_knowledge MemoryKnowledge[]
+  workflow_executions WorkflowExecution[]
+  user_feature_flags UserFeatureFlag[]
 
   @@map("users")
 }
@@ -41,29 +49,50 @@ model User {
 model Session {
   id           String   @id @db.VarChar(255)
   user_id      String   @map("user_id")
+  token        String   @unique @db.VarChar(255)
   expires_at   DateTime @map("expires_at")
+  ip_address   String?  @map("ip_address") @db.VarChar(45)
+  user_agent   String?  @map("user_agent") @db.Text
   created_at   DateTime @default(now()) @map("created_at")
   updated_at   DateTime @updatedAt @map("updated_at")
 
   user         User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@index([user_id])
+  @@index([token])
   @@map("sessions")
 }
 
 model Account {
-  id                String   @id @db.VarChar(255)
-  user_id           String   @map("user_id")
-  provider_type     String   @map("provider_type")
-  provider_id       String   @map("provider_id")
-  provider_account_id String @map("provider_account_id")
-  created_at        DateTime @default(now()) @map("created_at")
-  updated_at        DateTime @updatedAt @map("updated_at")
+  id                      String    @id @db.VarChar(255)
+  user_id                 String    @map("user_id")
+  account_id              String    @map("account_id") @db.VarChar(255)
+  provider_id             String    @map("provider_id") @db.VarChar(255)
+  access_token            String?   @map("access_token") @db.Text
+  refresh_token           String?   @map("refresh_token") @db.Text
+  id_token                String?   @map("id_token") @db.Text
+  access_token_expires_at DateTime? @map("access_token_expires_at")
+  refresh_token_expires_at DateTime? @map("refresh_token_expires_at")
+  scope                   String?   @db.Text
+  password                String?   @db.VarChar(255)
+  created_at              DateTime  @default(now()) @map("created_at")
+  updated_at              DateTime  @updatedAt @map("updated_at")
 
-  user              User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user                    User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@index([user_id])
   @@map("accounts")
+}
+
+model Verification {
+  id          String   @id @db.VarChar(255)
+  identifier  String   @db.VarChar(255)
+  value       String   @db.VarChar(255)
+  expires_at  DateTime @map("expires_at")
+  created_at  DateTime @default(now()) @map("created_at")
+  updated_at  DateTime @updatedAt @map("updated_at")
+
+  @@map("verifications")
 }
 
 enum PlanTier {
@@ -73,22 +102,23 @@ enum PlanTier {
 }
 
 // ============================================
-// API Keys
+// API Keys (BYOK)
 // ============================================
 
 model ApiKey {
-  id          String   @id @db.VarChar(255)
-  user_id     String   @map("user_id")
-  name        String   @db.VarChar(255)
-  key_hash    String   @map("key_hash") @db.VarChar(255)
-  prefix      String   @db.VarChar(8)
-  last_used   DateTime? @map("last_used")
-  created_at  DateTime @default(now()) @map("created_at")
-  revoked     Boolean  @default(false)
+  id            String   @id @default(uuid()) @db.Uuid
+  user_id       String   @map("user_id")
+  provider      String   @db.VarChar(255)
+  encrypted_key String   @map("encrypted_key") @db.Text
+  iv            String   @db.VarChar(255)
+  hint          String?  @db.VarChar(255)
+  created_at    DateTime @default(now()) @map("created_at")
+  updated_at    DateTime @updatedAt @map("updated_at")
 
-  user        User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user          User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@index([user_id])
+  @@index([provider])
   @@map("api_keys")
 }
 
@@ -97,18 +127,250 @@ model ApiKey {
 // ============================================
 
 model CreditLedgerEntry {
-  id          String   @id @db.VarChar(255)
+  id          String   @id @default(uuid()) @db.Uuid
   user_id     String   @map("user_id")
-  delta       Int
+  amount      Int
   balance     Int
   reason      String   @db.VarChar(255)
-  task_id     String?  @map("task_id") @db.VarChar(255)
+  reference_id String? @map("reference_id") @db.VarChar(255)
   created_at  DateTime @default(now()) @map("created_at")
 
   user        User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@index([user_id])
+  @@index([reference_id])
   @@map("credit_ledger")
+}
+
+// ============================================
+// AI Providers & Models
+// ============================================
+
+model Provider {
+  id             String   @id @db.VarChar(255)
+  name           String   @db.VarChar(255)
+  display_name   String?  @map("display_name") @db.VarChar(255)
+  description    String?  @db.Text
+  base_url       String?  @map("base_url") @db.VarChar(255)
+  api_key_env    String?  @map("api_key_env") @db.VarChar(255)
+  rate_limit_rpm Int?     @default(60) @map("rate_limit_rpm")
+  rate_limit_tpm Int?     @default(90000) @map("rate_limit_tpm")
+  enabled        Boolean  @default(true)
+  config        Json?    @db.Json
+  created_at    DateTime @default(now()) @map("created_at")
+  updated_at    DateTime @updatedAt @map("updated_at")
+
+  models        Model[]
+
+  @@map("providers")
+}
+
+model Model {
+  id                  String   @id @db.VarChar(255)
+  provider_id         String   @map("provider_id") @db.VarChar(255)
+  name                String   @db.VarChar(255)
+  display_name        String?  @map("display_name") @db.VarChar(255)
+  context_window      Int?     @default(4096) @map("context_window")
+  max_output_tokens   Int?     @default(4096) @map("max_output_tokens")
+  input_cost_per_1k   Decimal  @default(0) @map("input_cost_per_1k") @db.Decimal(10, 6)
+  output_cost_per_1k  Decimal  @default(0) @map("output_cost_per_1k") @db.Decimal(10, 6)
+  supports_vision     Boolean  @default(false) @map("supports_vision")
+  supports_tools      Boolean  @default(true) @map("supports_tools")
+  supports_streaming  Boolean  @default(true) @map("supports_streaming")
+  capabilities        Json?    @default("[]") @db.Json
+  enabled             Boolean  @default(true)
+  created_at          DateTime @default(now()) @map("created_at")
+
+  provider            Provider @relation(fields: [provider_id], references: [id], onDelete: Cascade)
+  credit_rates        CreditRate[]
+
+  @@index([provider_id])
+  @@map("models")
+}
+
+// ============================================
+// Plans & Subscriptions
+// ============================================
+
+model Plan {
+  id                    String   @id @db.VarChar(255)
+  name                  String   @db.VarChar(255)
+  display_name          String?  @map("display_name") @db.VarChar(255)
+  description           String?  @db.Text
+  price_monthly         Decimal  @default(0) @map("price_monthly") @db.Decimal(10, 2)
+  price_yearly          Decimal  @default(0) @map("price_yearly") @db.Decimal(10, 2)
+  credits_included      Int      @default(0) @map("credits_included")
+  credits_per_month     Int      @default(0) @map("credits_per_month")
+  features              Json?    @default("{}") @db.Json
+  limits                Json?    @default("{}") @db.Json
+  stripe_product_id     String?  @map("stripe_product_id") @db.VarChar(255)
+  stripe_price_monthly_id String? @map("stripe_price_monthly_id") @db.VarChar(255)
+  stripe_price_yearly_id String? @map("stripe_price_yearly_id") @db.VarChar(255)
+  is_active             Boolean  @default(true) @map("is_active")
+  is_default            Boolean  @default(false) @map("is_default")
+  created_at            DateTime @default(now()) @map("created_at")
+  updated_at            DateTime @updatedAt @map("updated_at")
+
+  subscriptions         Subscription[]
+
+  @@map("plans")
+}
+
+model Subscription {
+  id                    String   @id @db.VarChar(255)
+  user_id               String   @map("user_id")
+  plan_id               String   @map("plan_id") @db.VarChar(255)
+  status                String   @default("active") @db.VarChar(50)
+  stripe_subscription_id String? @map("stripe_subscription_id") @db.VarChar(255)
+  stripe_customer_id    String?  @map("stripe_customer_id") @db.VarChar(255)
+  current_period_start  DateTime? @map("current_period_start")
+  current_period_end    DateTime? @map("current_period_end")
+  cancel_at_period_end  Boolean  @default(false) @map("cancel_at_period_end")
+  cancelled_at          DateTime? @map("cancelled_at")
+  created_at            DateTime @default(now()) @map("created_at")
+  updated_at            DateTime @updatedAt @map("updated_at")
+
+  user                  User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  plan                  Plan     @relation(fields: [plan_id], references: [id], onDelete: Restrict)
+
+  @@index([user_id])
+  @@index([stripe_subscription_id])
+  @@map("subscriptions")
+}
+
+model CreditRate {
+  id                    String   @id @db.VarChar(255)
+  model_id              String   @map("model_id") @db.VarChar(255)
+  input_cost_per_token  Decimal  @map("input_cost_per_token") @db.Decimal(10, 8)
+  output_cost_per_token Decimal  @map("output_cost_per_token") @db.Decimal(10, 8)
+  effective_from        DateTime @default(now()) @map("effective_from")
+  created_at            DateTime @default(now()) @map("created_at")
+
+  model                 Model    @relation(fields: [model_id], references: [id], onDelete: Cascade)
+
+  @@index([model_id])
+  @@map("credit_rates")
+}
+
+// ============================================
+// Agents
+// ============================================
+
+model Agent {
+  id            String   @id @default(uuid()) @db.Uuid
+  name          String   @db.VarChar(255)
+  description   String?  @db.Text
+  system_prompt String?  @map("system_prompt") @db.Text
+  category      String   @db.VarChar(255)
+  risk_level    String   @default("unknown") @map("risk_level") @db.VarChar(50)
+  source        String?  @db.VarChar(255)
+  source_url    String?  @map("source_url") @db.VarChar(255)
+  stars         Int      @default(0)
+  forks         Int      @default(0)
+  image_url     String?  @map("image_url") @db.VarChar(255)
+  price         Int      @default(0)
+  is_published  Boolean  @default(false) @map("is_published")
+  version       String?  @db.VarChar(50)
+  color         String?  @db.VarChar(50)
+  emoji         String?  @db.VarChar(10)
+  vibe          String?  @db.VarChar(255)
+  author        String?  @db.VarChar(255)
+  created_at    DateTime @default(now()) @map("created_at")
+  updated_at    DateTime @updatedAt @map("updated_at")
+
+  skills        AgentSkill[]
+  mcp_tools     AgentMcpTool[]
+  actions       AgentAction[]
+  installed_by  InstalledAgent[]
+
+  @@index([category])
+  @@index([source])
+  @@map("agents")
+}
+
+model AgentSkill {
+  id           String   @id @default(uuid()) @db.Uuid
+  agent_id     String   @map("agent_id") @db.Uuid
+  name         String   @db.VarChar(255)
+  description  String?  @db.Text
+  instructions String?  @db.Text
+  triggers     String[] @default([])
+  version      String?  @db.VarChar(50)
+  created_at   DateTime @default(now()) @map("created_at")
+  updated_at   DateTime @updatedAt @map("updated_at")
+
+  agent        Agent    @relation(fields: [agent_id], references: [id], onDelete: Cascade)
+
+  @@index([agent_id])
+  @@map("agent_skills")
+}
+
+model AgentMcpTool {
+  id           String   @id @default(uuid()) @db.Uuid
+  agent_id     String   @map("agent_id") @db.Uuid
+  name         String   @db.VarChar(255)
+  description  String?  @db.Text
+  input_schema Json?    @map("input_schema") @db.Json
+  credit_cost  Int      @default(0) @map("credit_cost")
+  is_enabled   Boolean  @default(true) @map("is_enabled")
+  created_at   DateTime @default(now()) @map("created_at")
+  updated_at   DateTime @updatedAt @map("updated_at")
+
+  agent        Agent    @relation(fields: [agent_id], references: [id], onDelete: Cascade)
+
+  @@index([agent_id])
+  @@map("agent_mcp_tools")
+}
+
+model AgentAction {
+  id            String   @id @default(uuid()) @db.Uuid
+  agent_id      String   @map("agent_id") @db.Uuid
+  name          String   @db.VarChar(255)
+  description   String?  @db.Text
+  mcp_endpoint  String?  @map("mcp_endpoint") @db.VarChar(255)
+  action_schema Json?    @map("action_schema") @db.Json
+  credit_cost   Int      @default(0) @map("credit_cost")
+  version       String?  @db.VarChar(50)
+  created_at    DateTime @default(now()) @map("created_at")
+  updated_at    DateTime @updatedAt @map("updated_at")
+
+  agent         Agent    @relation(fields: [agent_id], references: [id], onDelete: Cascade)
+
+  @@index([agent_id])
+  @@map("agent_actions")
+}
+
+model InstalledAgent {
+  id           String   @id @default(uuid()) @db.Uuid
+  user_id      String   @map("user_id")
+  agent_id     String   @map("agent_id") @db.Uuid
+  installed_at DateTime @default(now()) @map("installed_at")
+  version      String?  @db.VarChar(50)
+  created_at   DateTime @default(now()) @map("created_at")
+  updated_at   DateTime @updatedAt @map("updated_at")
+
+  user         User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  agent        Agent    @relation(fields: [agent_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id])
+  @@index([agent_id])
+  @@map("installed_agents")
+}
+
+model UserAgent {
+  id            String   @id @db.VarChar(255)
+  user_id       String   @map("user_id")
+  name          String   @db.VarChar(255)
+  description   String?  @db.Text
+  system_prompt String?  @map("system_prompt") @db.Text
+  model         String   @default("gpt-4o") @db.VarChar(255)
+  created_at    DateTime @default(now()) @map("created_at")
+  updated_at    DateTime @updatedAt @map("updated_at")
+
+  user          User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id])
+  @@map("user_agents")
 }
 
 // ============================================
@@ -116,33 +378,62 @@ model CreditLedgerEntry {
 // ============================================
 
 model Task {
-  id          String     @id @db.VarChar(255)
-  user_id     String     @map("user_id")
-  agent_id    String?    @map("agent_id") @db.VarChar(255)
-  status      TaskStatus @default(pending)
-  prompt      String     @db.Text
-  result      String?    @db.Text
-  error       String?    @db.Text
-  created_at  DateTime   @default(now()) @map("created_at")
-  updated_at  DateTime   @updatedAt @map("updated_at")
-  completed_at DateTime? @map("completed_at")
+  id                String     @id @default(uuid()) @db.Uuid
+  user_id           String     @map("user_id")
+  agent_slug        String     @map("agent_slug") @db.VarChar(255)
+  agent_spec        Json?      @map("agent_spec") @db.Json
+  goal              String     @db.Text
+  context           String?    @db.Text
+  provider          String     @db.VarChar(255)
+  model             String?    @db.VarChar(255)
+  seed              Int?
+  credit_budget     Int?       @map("credit_budget")
+  max_iterations    Int        @default(20) @map("max_iterations")
+  max_tool_calls    Int        @default(50) @map("max_tool_calls")
+  max_tokens        Int        @default(200000) @map("max_tokens")
+  max_runtime_ms    Int        @default(1800000) @map("max_runtime_ms")
+  status            TaskStatus @default(pending)
+  iteration         Int        @default(0)
+  tool_calls_made   Int        @default(0) @map("tool_calls_made")
+  tokens_used       Int        @default(0) @map("tokens_used")
+  credits_used      Int        @default(0) @map("credits_used")
+  credits_reserved  Int        @default(0) @map("credits_reserved")
+  result            String?    @db.Text
+  error             String?    @db.Text
+  started_at        DateTime?  @map("started_at")
+  completed_at      DateTime?  @map("completed_at")
+  execution_hash    String?    @map("execution_hash") @db.VarChar(255)
+  parent_task_id    String?    @map("parent_task_id") @db.Uuid
+  root_task_id      String?    @map("root_task_id") @db.Uuid
+  graph_depth       Int        @default(0) @map("graph_depth")
+  created_at        DateTime   @default(now()) @map("created_at")
+  updated_at        DateTime   @updatedAt @map("updated_at")
+  retry_count       Int        @default(0) @map("retry_count")
+  worker_id         String?    @map("worker_id") @db.VarChar(255)
+  heartbeat_at      DateTime?  @map("heartbeat_at")
+  replay_of_task_id String?    @map("replay_of_task_id") @db.Uuid
+  fork_from_step    Int?       @map("fork_from_step")
 
-  user        User       @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  steps       TaskStep[]
-  tool_calls  ToolCall[]
+  user              User       @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  steps             TaskStep[]
+  tool_calls        ToolCall[]
+  execution_logs    ExecutionLog[]
+  skill_executions  SkillExecution[]
 
   @@index([user_id])
   @@index([status])
+  @@index([agent_slug])
   @@map("tasks")
 }
 
 model TaskStep {
-  id          String   @id @db.VarChar(255)
-  task_id     String   @map("task_id")
+  id          String   @id @default(uuid()) @db.Uuid
+  task_id     String   @map("task_id") @db.Uuid
   step_number Int      @map("step_number")
   action      String   @db.VarChar(255)
-  input       String?  @db.Text
-  output      String?  @db.Text
+  input       Json?    @db.Json
+  output      Json?    @db.Json
+  metadata    Json?    @default("{}") @db.Json
   created_at  DateTime @default(now()) @map("created_at")
 
   task        Task     @relation(fields: [task_id], references: [id], onDelete: Cascade)
@@ -152,17 +443,36 @@ model TaskStep {
 }
 
 model ToolCall {
-  id          String   @id @db.VarChar(255)
-  task_id     String   @map("task_id")
-  tool_name   String   @map("tool_name") @db.VarChar(255)
-  arguments   String   @db.Text
-  result      String?  @db.Text
-  created_at  DateTime @default(now()) @map("created_at")
+  id              String   @id @default(uuid()) @db.Uuid
+  task_id         String   @map("task_id") @db.Uuid
+  step_id         String?  @map("step_id") @db.Uuid
+  tool_name       String   @map("tool_name") @db.VarChar(255)
+  arguments       Json     @db.Json
+  result          Json?    @db.Json
+  error           String?  @db.Text
+  child_task_id   String?  @map("child_task_id") @db.Uuid
+  created_at      DateTime @default(now()) @map("created_at")
 
-  task        Task     @relation(fields: [task_id], references: [id], onDelete: Cascade)
+  task            Task     @relation(fields: [task_id], references: [id], onDelete: Cascade)
 
   @@index([task_id])
   @@map("tool_calls")
+}
+
+model ExecutionLog {
+  id         String   @id @db.VarChar(255)
+  task_id    String?  @map("task_id") @db.Uuid
+  agent_id   String?  @map("agent_id") @db.VarChar(255)
+  level      String   @db.VarChar(50)
+  message    String   @db.Text
+  metadata   Json?    @default("{}") @db.Json
+  created_at DateTime @default(now()) @map("created_at")
+
+  task       Task?    @relation(fields: [task_id], references: [id], onDelete: Cascade)
+
+  @@index([task_id])
+  @@index([level])
+  @@map("execution_logs")
 }
 
 enum TaskStatus {
@@ -171,24 +481,331 @@ enum TaskStatus {
   completed
   failed
   cancelled
+  stuck
 }
 
 // ============================================
-// Agents
+// Skills
 // ============================================
 
-model UserAgent {
-  id           String   @id @db.VarChar(255)
-  user_id      String   @map("user_id")
-  name         String   @db.VarChar(255)
-  description  String?  @db.Text
-  system_prompt String? @map("system_prompt") @db.Text
-  model        String   @default("gpt-4o") @db.VarChar(255)
-  created_at   DateTime @default(now()) @map("created_at")
-  updated_at   DateTime @updatedAt @map("updated_at")
+model Skill {
+  id              String   @id @db.VarChar(255)
+  name            String   @unique @db.VarChar(255)
+  display_name    String?  @map("display_name") @db.VarChar(255)
+  description     String?  @db.Text
+  category        String?  @db.VarChar(255)
+  tags            String[] @default([])
+  required_tools  String[] @default([]) @map("required_tools")
+  optional_tools  String[] @default([]) @map("optional_tools")
+  config_schema   Json?    @default("{}") @map("config_schema") @db.Json
+  default_config  Json?    @default("{}") @map("default_config") @db.Json
+  version         String   @default("1.0.0") @db.VarChar(50)
+  enabled         Boolean  @default(true)
+  created_at      DateTime @default(now()) @map("created_at")
+  updated_at      DateTime @updatedAt @map("updated_at")
 
-  user         User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  executions      SkillExecution[]
+
+  @@index([category])
+  @@map("skills")
+}
+
+model SkillExecution {
+  id          String   @id @db.VarChar(255)
+  skill_id    String   @map("skill_id") @db.VarChar(255)
+  task_id     String?  @map("task_id") @db.Uuid
+  input       Json     @db.Json
+  output      Json?    @db.Json
+  error       String?  @db.Text
+  duration_ms Int?     @map("duration_ms")
+  success     Boolean?
+  created_at  DateTime @default(now()) @map("created_at")
+
+  skill       Skill    @relation(fields: [skill_id], references: [id], onDelete: Cascade)
+  task        Task?    @relation(fields: [task_id], references: [id], onDelete: SetNull)
+
+  @@index([skill_id])
+  @@index([task_id])
+  @@map("skill_executions")
+}
+
+// ============================================
+// MCP (Model Context Protocol)
+// ============================================
+
+model McpServer {
+  id          String   @id @db.VarChar(255)
+  name        String   @unique @db.VarChar(255)
+  display_name String? @map("display_name") @db.VarChar(255)
+  description String?  @db.Text
+  transport   String   @db.VarChar(50)
+  command     String?  @db.VarChar(255)
+  args        String[] @default([])
+  env         Json?    @default("{}") @db.Json
+  url         String?  @db.VarChar(255)
+  enabled     Boolean  @default(true)
+  auto_start  Boolean  @default(false) @map("auto_start")
+  created_at  DateTime @default(now()) @map("created_at")
+
+  tools       McpTool[]
+  resources   McpResource[]
+
+  @@map("mcp_servers")
+}
+
+model McpTool {
+  id             String   @id @db.VarChar(255)
+  server_id      String   @map("server_id") @db.VarChar(255)
+  name           String   @db.VarChar(255)
+  description    String?  @db.Text
+  input_schema   Json     @map("input_schema") @db.Json
+  output_schema  Json?    @map("output_schema") @db.Json
+  annotations    Json?    @default("{}") @db.Json
+  enabled        Boolean  @default(true)
+  created_at     DateTime @default(now()) @map("created_at")
+
+  server         McpServer @relation(fields: [server_id], references: [id], onDelete: Cascade)
+
+  @@index([server_id])
+  @@map("mcp_tools")
+}
+
+model McpResource {
+  id          String   @id @db.VarChar(255)
+  server_id   String   @map("server_id") @db.VarChar(255)
+  uri         String   @db.VarChar(255)
+  name        String   @db.VarChar(255)
+  description String?  @db.Text
+  mime_type   String?  @map("mime_type") @db.VarChar(255)
+  size_bytes  BigInt?  @map("size_bytes")
+  created_at  DateTime @default(now()) @map("created_at")
+
+  server      McpServer @relation(fields: [server_id], references: [id], onDelete: Cascade)
+
+  @@index([server_id])
+  @@map("mcp_resources")
+}
+
+// ============================================
+// Webhooks
+// ============================================
+
+model Webhook {
+  id                String   @id @db.VarChar(255)
+  user_id           String   @map("user_id")
+  name              String   @db.VarChar(255)
+  url               String   @db.VarChar(255)
+  secret            String?  @db.VarChar(255)
+  events            String[] @default([])
+  enabled           Boolean  @default(true)
+  last_triggered_at DateTime? @map("last_triggered_at")
+  created_at        DateTime @default(now()) @map("created_at")
+
+  user              User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  deliveries        WebhookDelivery[]
 
   @@index([user_id])
-  @@map("user_agents")
+  @@map("webhooks")
+}
+
+model WebhookDelivery {
+  id              String   @id @db.VarChar(255)
+  webhook_id      String   @map("webhook_id") @db.VarChar(255)
+  event_type      String   @map("event_type") @db.VarChar(255)
+  payload         Json     @db.Json
+  response_status Int?     @map("response_status")
+  response_body   String?  @map("response_body") @db.Text
+  attempts        Int      @default(0)
+  delivered_at    DateTime? @map("delivered_at")
+  created_at      DateTime @default(now()) @map("created_at")
+
+  webhook         Webhook  @relation(fields: [webhook_id], references: [id], onDelete: Cascade)
+
+  @@index([webhook_id])
+  @@map("webhook_deliveries")
+}
+
+// ============================================
+// Feature Flags
+// ============================================
+
+model FeatureFlag {
+  id                 String   @id @db.VarChar(255)
+  name               String   @unique @db.VarChar(255)
+  description        String?  @db.Text
+  enabled            Boolean  @default(false)
+  rollout_percentage Int      @default(0) @map("rollout_percentage")
+  conditions         Json?    @default("{}") @db.Json
+  created_at         DateTime @default(now()) @map("created_at")
+  updated_at         DateTime @updatedAt @map("updated_at")
+
+  user_overrides     UserFeatureFlag[]
+
+  @@map("feature_flags")
+}
+
+model UserFeatureFlag {
+  user_id    String   @map("user_id")
+  flag_id    String   @map("flag_id") @db.VarChar(255)
+  enabled    Boolean
+  created_at DateTime @default(now()) @map("created_at")
+
+  user       User        @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  flag       FeatureFlag @relation(fields: [flag_id], references: [id], onDelete: Cascade)
+
+  @@id([user_id, flag_id])
+  @@map("user_feature_flags")
+}
+
+// ============================================
+// Audit Logs
+// ============================================
+
+model AuditLog {
+  id             String   @id @db.VarChar(255)
+  user_id        String?  @map("user_id")
+  action         String   @db.VarChar(255)
+  resource_type  String?  @map("resource_type") @db.VarChar(255)
+  resource_id    String?  @map("resource_id") @db.VarChar(255)
+  old_values     Json?    @map("old_values") @db.Json
+  new_values     Json?    @map("new_values") @db.Json
+  ip_address     String?  @map("ip_address") @db.VarChar(45)
+  user_agent     String?  @map("user_agent") @db.Text
+  created_at     DateTime @default(now()) @map("created_at")
+
+  @@index([user_id])
+  @@index([action])
+  @@index([resource_type, resource_id])
+  @@map("audit_logs")
+}
+
+// ============================================
+// Prompts & Templates
+// ============================================
+
+model SystemPrompt {
+  id          String   @id @db.VarChar(255)
+  name        String   @db.VarChar(255)
+  description String?  @db.Text
+  content     String   @db.Text
+  variables   Json?    @default("[]") @db.Json
+  category    String?  @db.VarChar(255)
+  tags        String[] @default([])
+  version     Int      @default(1)
+  created_at  DateTime @default(now()) @map("created_at")
+  updated_at  DateTime @updatedAt @map("updated_at")
+
+  @@index([category])
+  @@map("system_prompts")
+}
+
+model PromptTemplate {
+  id          String   @id @db.VarChar(255)
+  name        String   @unique @db.VarChar(255)
+  description String?  @db.Text
+  template    String   @db.Text
+  variables   Json?    @default("[]") @db.Json
+  category    String?  @db.VarChar(255)
+  tags        String[] @default([])
+  version     Int      @default(1)
+  created_at  DateTime @default(now()) @map("created_at")
+  updated_at  DateTime @updatedAt @map("updated_at")
+
+  @@index([category])
+  @@map("prompt_templates")
+}
+
+// ============================================
+// Workflows
+// ============================================
+
+model Workflow {
+  id            String   @id @db.VarChar(255)
+  name          String   @db.VarChar(255)
+  description   String?  @db.Text
+  definition    Json     @db.Json
+  triggers      Json?    @default("[]") @db.Json
+  input_schema  Json?    @default("{}") @map("input_schema") @db.Json
+  output_schema Json?    @default("{}") @map("output_schema") @db.Json
+  enabled       Boolean  @default(true)
+  created_at    DateTime @default(now()) @map("created_at")
+  updated_at    DateTime @updatedAt @map("updated_at")
+
+  executions    WorkflowExecution[]
+
+  @@map("workflows")
+}
+
+model WorkflowExecution {
+  id           String   @id @db.VarChar(255)
+  workflow_id  String   @map("workflow_id") @db.VarChar(255)
+  user_id      String?  @map("user_id")
+  status       String   @default("pending") @db.VarChar(50)
+  input        Json     @db.Json
+  output       Json?    @db.Json
+  error        String?  @db.Text
+  current_step String?  @map("current_step") @db.VarChar(255)
+  context      Json?    @default("{}") @db.Json
+  started_at   DateTime? @map("started_at")
+  completed_at DateTime? @map("completed_at")
+  created_at   DateTime @default(now()) @map("created_at")
+
+  workflow     Workflow @relation(fields: [workflow_id], references: [id], onDelete: Cascade)
+  user         User?    @relation(fields: [user_id], references: [id], onDelete: SetNull)
+
+  @@index([workflow_id])
+  @@index([user_id])
+  @@index([status])
+  @@map("workflow_executions")
+}
+
+// ============================================
+// Memory
+// ============================================
+
+model MemoryEpisode {
+  id          String   @id @db.VarChar(255)
+  user_id     String   @map("user_id")
+  task_id     String?  @map("task_id") @db.VarChar(255)
+  content     String   @db.Text
+  metadata    Json?    @default("{}") @db.Json
+  importance  String   @default("medium") @db.VarChar(50)
+  created_at  DateTime @default(now()) @map("created_at")
+
+  user        User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id])
+  @@index([task_id])
+  @@map("memory_episodes")
+}
+
+model MemoryKnowledge {
+  id          String   @id @db.VarChar(255)
+  user_id     String   @map("user_id")
+  key         String   @db.VarChar(255)
+  value       String   @db.Text
+  category    String?  @db.VarChar(255)
+  confidence  String   @default("medium") @db.VarChar(50)
+  source      String?  @db.VarChar(255)
+  created_at  DateTime @default(now()) @map("created_at")
+  updated_at  DateTime @updatedAt @map("updated_at")
+
+  user        User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id])
+  @@index([key])
+  @@map("memory_knowledge")
+}
+
+model MemoryEmbedding {
+  id           String   @id @db.VarChar(255)
+  memory_type  String   @map("memory_type") @db.VarChar(50)
+  memory_id    String   @map("memory_id") @db.VarChar(255)
+  content      String   @db.Text
+  embedding    String?  @db.Text // Stored as JSON array, use pgvector in production
+  metadata     Json?    @default("{}") @db.Json
+  created_at   DateTime @default(now()) @map("created_at")
+
+  @@index([memory_type, memory_id])
+  @@map("memory_embeddings")
 }

@@ -1,29 +1,65 @@
 {
   "name": "@aitlas/schema",
-  "version": "0.1.0",
-  "description": "Shared database schemas for Aitlas projects",
+  "version": "0.2.0",
+  "description": "Shared database schemas for Aitlas projects (Prisma + Drizzle)",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./prisma": "./prisma/base.prisma",
+    "./drizzle": "./drizzle/index.ts"
+  },
   "files": [
     "prisma/",
+    "drizzle/",
+    "elixir/",
     "migrations/",
+    "dist/",
     "README.md"
   ],
   "scripts": {
+    "build": "tsc",
     "generate": "prisma generate",
     "db:pull": "prisma db pull",
     "db:push": "prisma db push",
-    "migrate": "prisma migrate dev"
+    "migrate": "prisma migrate dev",
+    "typecheck": "tsc --noEmit"
   },
   "peerDependencies": {
-    "@prisma/client": "^5.0.0"
+    "@prisma/client": "^5.0.0",
+    "drizzle-orm": "^0.30.0"
+  },
+  "peerDependenciesMeta": {
+    "@prisma/client": {
+      "optional": true
+    },
+    "drizzle-orm": {
+      "optional": true
+    }
   },
   "devDependencies": {
+    "@types/node": "^20.0.0",
     "prisma": "^5.0.0",
+    "drizzle-orm": "^0.30.0",
     "typescript": "^5.0.0"
   },
   "repository": {
     "type": "git",
+    "url": "https://github.com/Fuuurma/aitlas-schema.git"
+  },
+  "keywords": [
+    "aitlas",
+    "schema",
+    "prisma",
+    "drizzle",
+    "database"
+  ],
+  "author": "Fuurma",
+  "license": "MIT"
+}
     "url": "https://github.com/Fuuurma/aitlas-schema"
   },
   "license": "MIT"
