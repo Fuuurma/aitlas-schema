@@ -35,7 +35,7 @@ export const skillExecutions = pgTable("skill_executions", {
   output: json("output").$type<Record<string, unknown>>(),
   error: text("error"),
   durationMs: integer("duration_ms"),
-  success: boolean(),
+  success: boolean("success"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 

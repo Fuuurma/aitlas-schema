@@ -10,14 +10,17 @@
       "default": "./dist/index.js"
     },
     "./prisma": "./prisma/base.prisma",
-    "./drizzle": "./drizzle/index.ts"
+    "./drizzle": {
+      "types": "./dist/drizzle/index.d.ts",
+      "default": "./dist/drizzle/index.js"
+    }
   },
   "files": [
     "prisma/",
     "drizzle/",
+    "dist/",
     "elixir/",
     "migrations/",
-    "dist/",
     "README.md"
   ],
   "scripts": {

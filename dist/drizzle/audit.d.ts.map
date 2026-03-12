@@ -1,0 +1,1 @@
+{"version":3,"file":"audit.d.ts","sourceRoot":"","sources":["../../drizzle/audit.ts"],"names":[],"mappings":"AASA,eAAO,MAAM,SAAS;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;EAWpB,CAAC;AAEH,MAAM,MAAM,QAAQ,GAAG,OAAO,SAAS,CAAC,YAAY,CAAC;AACrD,MAAM,MAAM,WAAW,GAAG,OAAO,SAAS,CAAC,YAAY,CAAC"}
