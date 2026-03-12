@@ -1,0 +1,30 @@
+{
+  "name": "@aitlas/schema",
+  "version": "0.1.0",
+  "description": "Shared database schemas for Aitlas projects",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "prisma/",
+    "migrations/",
+    "README.md"
+  ],
+  "scripts": {
+    "generate": "prisma generate",
+    "db:pull": "prisma db pull",
+    "db:push": "prisma db push",
+    "migrate": "prisma migrate dev"
+  },
+  "peerDependencies": {
+    "@prisma/client": "^5.0.0"
+  },
+  "devDependencies": {
+    "prisma": "^5.0.0",
+    "typescript": "^5.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Fuuurma/aitlas-schema"
+  },
+  "license": "MIT"
+}
