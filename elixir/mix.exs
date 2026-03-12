@@ -1,13 +1,14 @@
-defmodule AitlasSchema.MixProject do
+defmodule Aitlas.Schema.MixProject do
   use Mix.Project
 
   def project do
     [
       app: :aitlas_schema,
-      version: "0.1.0",
-      elixir: "~> 1.15",
+      version: "0.2.0",
+      elixir: "~> 1.18",
+      start_permanent: Mix.env() == :prod,
       deps: deps(),
-      description: "Shared database schemas for Aitlas projects",
+      description: "Shared Ecto schemas for Aitlas projects",
       package: package()
     ]
   end
@@ -20,16 +21,19 @@ defmodule AitlasSchema.MixProject do
 
   defp deps do
     [
-      {:ecto, "~> 3.11"},
-      {:ecto_sql, "~> 3.11"},
-      {:postgrex, "~> 0.19"}
+      {:ecto, "~> 3.12"},
+      {:ecto_sql, "~> 3.12"}
     ]
   end
 
   defp package do
     [
+      name: "aitlas_schema",
+      files: ~w(lib priv .formatter.exs mix.exs README* LICENSE*),
       licenses: ["MIT"],
-      links: %{"GitHub" => "https://github.com/Fuuurma/aitlas-schema"}
+      links: %{
+        "GitHub" => "https://github.com/Fuuurma/aitlas-schema"
+      }
     ]
   end
 end
