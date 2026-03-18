@@ -44,6 +44,8 @@ defmodule Aitlas.Schema.Agent do
     field(:version, :string)
     field(:creator_id, :binary_id)
 
+    belongs_to(:creator, Aitlas.Schema.Creator, define_field: false)
+
     has_many(:skills, Aitlas.Schema.AgentSkill)
     has_many(:mcp_tools, Aitlas.Schema.AgentMcpTool)
     has_many(:actions, Aitlas.Schema.AgentAction)
