@@ -19,8 +19,8 @@ defmodule Aitlas.Schema.McpServer do
     field(:enabled, :boolean, default: true)
     field(:auto_start, :boolean, default: false)
 
-    has_many(:tools, Aitlas.Schema.McpTool)
-    has_many(:resources, Aitlas.Schema.McpResource)
+    has_many(:tools, Aitlas.Schema.McpTool, foreign_key: :server_id)
+    has_many(:resources, Aitlas.Schema.McpResource, foreign_key: :server_id)
 
     timestamps(updated_at: false)
   end

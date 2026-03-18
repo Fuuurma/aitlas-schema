@@ -26,8 +26,44 @@ export declare const agents: import("drizzle-orm/pg-core").PgTableWithColumns<{
             enumValues: [string, ...string[]];
             baseColumn: never;
         }, {}, {}>;
+        slug: import("drizzle-orm/pg-core").PgColumn<{
+            name: "slug";
+            tableName: "agents";
+            dataType: "string";
+            columnType: "PgText";
+            data: string;
+            driverParam: string;
+            notNull: false;
+            hasDefault: false;
+            enumValues: [string, ...string[]];
+            baseColumn: never;
+        }, {}, {}>;
+        displayName: import("drizzle-orm/pg-core").PgColumn<{
+            name: "display_name";
+            tableName: "agents";
+            dataType: "string";
+            columnType: "PgText";
+            data: string;
+            driverParam: string;
+            notNull: false;
+            hasDefault: false;
+            enumValues: [string, ...string[]];
+            baseColumn: never;
+        }, {}, {}>;
         description: import("drizzle-orm/pg-core").PgColumn<{
             name: "description";
+            tableName: "agents";
+            dataType: "string";
+            columnType: "PgText";
+            data: string;
+            driverParam: string;
+            notNull: false;
+            hasDefault: false;
+            enumValues: [string, ...string[]];
+            baseColumn: never;
+        }, {}, {}>;
+        longDescription: import("drizzle-orm/pg-core").PgColumn<{
+            name: "long_description";
             tableName: "agents";
             dataType: "string";
             columnType: "PgText";
@@ -59,6 +95,89 @@ export declare const agents: import("drizzle-orm/pg-core").PgTableWithColumns<{
             driverParam: string;
             notNull: true;
             hasDefault: false;
+            enumValues: [string, ...string[]];
+            baseColumn: never;
+        }, {}, {}>;
+        categoryId: import("drizzle-orm/pg-core").PgColumn<{
+            name: "category_id";
+            tableName: "agents";
+            dataType: "string";
+            columnType: "PgUUID";
+            data: string;
+            driverParam: string;
+            notNull: false;
+            hasDefault: false;
+            enumValues: undefined;
+            baseColumn: never;
+        }, {}, {}>;
+        role: import("drizzle-orm/pg-core").PgColumn<{
+            name: "role";
+            tableName: "agents";
+            dataType: "string";
+            columnType: "PgText";
+            data: string;
+            driverParam: string;
+            notNull: false;
+            hasDefault: true;
+            enumValues: [string, ...string[]];
+            baseColumn: never;
+        }, {}, {}>;
+        roleId: import("drizzle-orm/pg-core").PgColumn<{
+            name: "role_id";
+            tableName: "agents";
+            dataType: "string";
+            columnType: "PgUUID";
+            data: string;
+            driverParam: string;
+            notNull: false;
+            hasDefault: false;
+            enumValues: undefined;
+            baseColumn: never;
+        }, {}, {}>;
+        tags: import("drizzle-orm/pg-core").PgColumn<{
+            name: "tags";
+            tableName: "agents";
+            dataType: "array";
+            columnType: "PgArray";
+            data: string[];
+            driverParam: string | string[];
+            notNull: false;
+            hasDefault: true;
+            enumValues: [string, ...string[]];
+            baseColumn: import("drizzle-orm").Column<{
+                name: "tags";
+                tableName: "agents";
+                dataType: "string";
+                columnType: "PgText";
+                data: string;
+                driverParam: string;
+                notNull: false;
+                hasDefault: false;
+                enumValues: [string, ...string[]];
+                baseColumn: never;
+            }, object, object>;
+        }, {}, {}>;
+        currentVersion: import("drizzle-orm/pg-core").PgColumn<{
+            name: "current_version";
+            tableName: "agents";
+            dataType: "string";
+            columnType: "PgText";
+            data: string;
+            driverParam: string;
+            notNull: false;
+            hasDefault: true;
+            enumValues: [string, ...string[]];
+            baseColumn: never;
+        }, {}, {}>;
+        status: import("drizzle-orm/pg-core").PgColumn<{
+            name: "status";
+            tableName: "agents";
+            dataType: "string";
+            columnType: "PgText";
+            data: string;
+            driverParam: string;
+            notNull: false;
+            hasDefault: true;
             enumValues: [string, ...string[]];
             baseColumn: never;
         }, {}, {}>;
@@ -122,6 +241,54 @@ export declare const agents: import("drizzle-orm/pg-core").PgTableWithColumns<{
             enumValues: undefined;
             baseColumn: never;
         }, {}, {}>;
+        runCount: import("drizzle-orm/pg-core").PgColumn<{
+            name: "run_count";
+            tableName: "agents";
+            dataType: "number";
+            columnType: "PgInteger";
+            data: number;
+            driverParam: string | number;
+            notNull: false;
+            hasDefault: true;
+            enumValues: undefined;
+            baseColumn: never;
+        }, {}, {}>;
+        avgRating: import("drizzle-orm/pg-core").PgColumn<{
+            name: "avg_rating";
+            tableName: "agents";
+            dataType: "string";
+            columnType: "PgNumeric";
+            data: string;
+            driverParam: string;
+            notNull: false;
+            hasDefault: false;
+            enumValues: undefined;
+            baseColumn: never;
+        }, {}, {}>;
+        reviewCount: import("drizzle-orm/pg-core").PgColumn<{
+            name: "review_count";
+            tableName: "agents";
+            dataType: "number";
+            columnType: "PgInteger";
+            data: number;
+            driverParam: string | number;
+            notNull: false;
+            hasDefault: true;
+            enumValues: undefined;
+            baseColumn: never;
+        }, {}, {}>;
+        successRate: import("drizzle-orm/pg-core").PgColumn<{
+            name: "success_rate";
+            tableName: "agents";
+            dataType: "string";
+            columnType: "PgNumeric";
+            data: string;
+            driverParam: string;
+            notNull: false;
+            hasDefault: false;
+            enumValues: undefined;
+            baseColumn: never;
+        }, {}, {}>;
         imageUrl: import("drizzle-orm/pg-core").PgColumn<{
             name: "image_url";
             tableName: "agents";
@@ -134,32 +301,8 @@ export declare const agents: import("drizzle-orm/pg-core").PgTableWithColumns<{
             enumValues: [string, ...string[]];
             baseColumn: never;
         }, {}, {}>;
-        price: import("drizzle-orm/pg-core").PgColumn<{
-            name: "price";
-            tableName: "agents";
-            dataType: "number";
-            columnType: "PgInteger";
-            data: number;
-            driverParam: string | number;
-            notNull: false;
-            hasDefault: true;
-            enumValues: undefined;
-            baseColumn: never;
-        }, {}, {}>;
-        isPublished: import("drizzle-orm/pg-core").PgColumn<{
-            name: "is_published";
-            tableName: "agents";
-            dataType: "boolean";
-            columnType: "PgBoolean";
-            data: boolean;
-            driverParam: boolean;
-            notNull: false;
-            hasDefault: true;
-            enumValues: undefined;
-            baseColumn: never;
-        }, {}, {}>;
-        version: import("drizzle-orm/pg-core").PgColumn<{
-            name: "version";
+        coverUrl: import("drizzle-orm/pg-core").PgColumn<{
+            name: "cover_url";
             tableName: "agents";
             dataType: "string";
             columnType: "PgText";
@@ -216,6 +359,90 @@ export declare const agents: import("drizzle-orm/pg-core").PgTableWithColumns<{
             notNull: false;
             hasDefault: false;
             enumValues: [string, ...string[]];
+            baseColumn: never;
+        }, {}, {}>;
+        price: import("drizzle-orm/pg-core").PgColumn<{
+            name: "price";
+            tableName: "agents";
+            dataType: "number";
+            columnType: "PgInteger";
+            data: number;
+            driverParam: string | number;
+            notNull: false;
+            hasDefault: true;
+            enumValues: undefined;
+            baseColumn: never;
+        }, {}, {}>;
+        isPublished: import("drizzle-orm/pg-core").PgColumn<{
+            name: "is_published";
+            tableName: "agents";
+            dataType: "boolean";
+            columnType: "PgBoolean";
+            data: boolean;
+            driverParam: boolean;
+            notNull: false;
+            hasDefault: true;
+            enumValues: undefined;
+            baseColumn: never;
+        }, {}, {}>;
+        isFeatured: import("drizzle-orm/pg-core").PgColumn<{
+            name: "is_featured";
+            tableName: "agents";
+            dataType: "boolean";
+            columnType: "PgBoolean";
+            data: boolean;
+            driverParam: boolean;
+            notNull: false;
+            hasDefault: true;
+            enumValues: undefined;
+            baseColumn: never;
+        }, {}, {}>;
+        isVerified: import("drizzle-orm/pg-core").PgColumn<{
+            name: "is_verified";
+            tableName: "agents";
+            dataType: "boolean";
+            columnType: "PgBoolean";
+            data: boolean;
+            driverParam: boolean;
+            notNull: false;
+            hasDefault: true;
+            enumValues: undefined;
+            baseColumn: never;
+        }, {}, {}>;
+        featuredOrder: import("drizzle-orm/pg-core").PgColumn<{
+            name: "featured_order";
+            tableName: "agents";
+            dataType: "number";
+            columnType: "PgInteger";
+            data: number;
+            driverParam: string | number;
+            notNull: false;
+            hasDefault: false;
+            enumValues: undefined;
+            baseColumn: never;
+        }, {}, {}>;
+        version: import("drizzle-orm/pg-core").PgColumn<{
+            name: "version";
+            tableName: "agents";
+            dataType: "string";
+            columnType: "PgText";
+            data: string;
+            driverParam: string;
+            notNull: false;
+            hasDefault: false;
+            enumValues: [string, ...string[]];
+            baseColumn: never;
+        }, {}, {}>;
+        creatorId: import("drizzle-orm/pg-core").PgColumn<{
+            name: "creator_id";
+            tableName: "agents";
+            dataType: "string";
+            columnType: "PgUUID";
+            data: string;
+            driverParam: string;
+            notNull: false;
+            hasDefault: false;
+            enumValues: undefined;
             baseColumn: never;
         }, {}, {}>;
         createdAt: import("drizzle-orm/pg-core").PgColumn<{
@@ -677,6 +904,30 @@ export declare const installedAgents: import("drizzle-orm/pg-core").PgTableWithC
             enumValues: [string, ...string[]];
             baseColumn: never;
         }, {}, {}>;
+        isDefault: import("drizzle-orm/pg-core").PgColumn<{
+            name: "is_default";
+            tableName: "installed_agents";
+            dataType: "boolean";
+            columnType: "PgBoolean";
+            data: boolean;
+            driverParam: boolean;
+            notNull: false;
+            hasDefault: true;
+            enumValues: undefined;
+            baseColumn: never;
+        }, {}, {}>;
+        config: import("drizzle-orm/pg-core").PgColumn<{
+            name: "config";
+            tableName: "installed_agents";
+            dataType: "json";
+            columnType: "PgJson";
+            data: Record<string, unknown>;
+            driverParam: unknown;
+            notNull: false;
+            hasDefault: true;
+            enumValues: undefined;
+            baseColumn: never;
+        }, {}, {}>;
         createdAt: import("drizzle-orm/pg-core").PgColumn<{
             name: "created_at";
             tableName: "installed_agents";
@@ -704,13 +955,13 @@ export declare const installedAgents: import("drizzle-orm/pg-core").PgTableWithC
     };
     dialect: "pg";
 }>;
-export declare const userAgents: import("drizzle-orm/pg-core").PgTableWithColumns<{
-    name: "user_agents";
+export declare const customAgents: import("drizzle-orm/pg-core").PgTableWithColumns<{
+    name: "custom_agents";
     schema: undefined;
     columns: {
         id: import("drizzle-orm/pg-core").PgColumn<{
             name: "id";
-            tableName: "user_agents";
+            tableName: "custom_agents";
             dataType: "string";
             columnType: "PgText";
             data: string;
@@ -722,7 +973,7 @@ export declare const userAgents: import("drizzle-orm/pg-core").PgTableWithColumn
         }, {}, {}>;
         userId: import("drizzle-orm/pg-core").PgColumn<{
             name: "user_id";
-            tableName: "user_agents";
+            tableName: "custom_agents";
             dataType: "string";
             columnType: "PgText";
             data: string;
@@ -734,7 +985,7 @@ export declare const userAgents: import("drizzle-orm/pg-core").PgTableWithColumn
         }, {}, {}>;
         name: import("drizzle-orm/pg-core").PgColumn<{
             name: "name";
-            tableName: "user_agents";
+            tableName: "custom_agents";
             dataType: "string";
             columnType: "PgText";
             data: string;
@@ -746,7 +997,7 @@ export declare const userAgents: import("drizzle-orm/pg-core").PgTableWithColumn
         }, {}, {}>;
         description: import("drizzle-orm/pg-core").PgColumn<{
             name: "description";
-            tableName: "user_agents";
+            tableName: "custom_agents";
             dataType: "string";
             columnType: "PgText";
             data: string;
@@ -758,7 +1009,7 @@ export declare const userAgents: import("drizzle-orm/pg-core").PgTableWithColumn
         }, {}, {}>;
         systemPrompt: import("drizzle-orm/pg-core").PgColumn<{
             name: "system_prompt";
-            tableName: "user_agents";
+            tableName: "custom_agents";
             dataType: "string";
             columnType: "PgText";
             data: string;
@@ -770,7 +1021,7 @@ export declare const userAgents: import("drizzle-orm/pg-core").PgTableWithColumn
         }, {}, {}>;
         model: import("drizzle-orm/pg-core").PgColumn<{
             name: "model";
-            tableName: "user_agents";
+            tableName: "custom_agents";
             dataType: "string";
             columnType: "PgText";
             data: string;
@@ -782,7 +1033,7 @@ export declare const userAgents: import("drizzle-orm/pg-core").PgTableWithColumn
         }, {}, {}>;
         createdAt: import("drizzle-orm/pg-core").PgColumn<{
             name: "created_at";
-            tableName: "user_agents";
+            tableName: "custom_agents";
             dataType: "date";
             columnType: "PgTimestamp";
             data: Date;
@@ -794,7 +1045,7 @@ export declare const userAgents: import("drizzle-orm/pg-core").PgTableWithColumn
         }, {}, {}>;
         updatedAt: import("drizzle-orm/pg-core").PgColumn<{
             name: "updated_at";
-            tableName: "user_agents";
+            tableName: "custom_agents";
             dataType: "date";
             columnType: "PgTimestamp";
             data: Date;
@@ -810,8 +1061,13 @@ export declare const userAgents: import("drizzle-orm/pg-core").PgTableWithColumn
 export type Agent = typeof agents.$inferSelect;
 export type NewAgent = typeof agents.$inferInsert;
 export type AgentSkill = typeof agentSkills.$inferSelect;
+export type NewAgentSkill = typeof agentSkills.$inferInsert;
 export type AgentMcpTool = typeof agentMcpTools.$inferSelect;
+export type NewAgentMcpTool = typeof agentMcpTools.$inferInsert;
 export type AgentAction = typeof agentActions.$inferSelect;
+export type NewAgentAction = typeof agentActions.$inferInsert;
 export type InstalledAgent = typeof installedAgents.$inferSelect;
-export type UserAgent = typeof userAgents.$inferSelect;
+export type NewInstalledAgent = typeof installedAgents.$inferInsert;
+export type CustomAgent = typeof customAgents.$inferSelect;
+export type NewCustomAgent = typeof customAgents.$inferInsert;
 //# sourceMappingURL=agents.d.ts.map

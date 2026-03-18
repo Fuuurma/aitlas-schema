@@ -16,7 +16,7 @@ defmodule Aitlas.Schema.CreatorPayout do
     field(:paid_at, :utc_datetime_usec)
 
     belongs_to(:creator, Aitlas.Schema.Creator)
-    has_many(:earnings, Aitlas.Schema.CreatorEarning)
+    has_many(:earnings, Aitlas.Schema.CreatorEarning, foreign_key: :payout_id)
 
     timestamps(updated_at: false)
   end
