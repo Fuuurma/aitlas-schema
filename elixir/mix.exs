@@ -1,9 +1,9 @@
-defmodule Aitlas.Schema.MixProject do
+defmodule Nexus.Schema.MixProject do
   use Mix.Project
 
   def project do
     [
-      app: :aitlas_schema,
+      app: :nexus_schema,
       version: "0.2.0",
       elixir: "~> 1.18",
       start_permanent: Mix.env() == :prod,
@@ -28,7 +28,7 @@ defmodule Aitlas.Schema.MixProject do
 
   defp package do
     [
-      name: "aitlas_schema",
+      name: "nexus_schema",
       files: ~w(lib priv .formatter.exs mix.exs README* LICENSE*),
       licenses: ["MIT"],
       links: %{
