@@ -16,7 +16,7 @@ defmodule Aitlas.Schema.PromptTemplate do
     field(:tags, {:array, :string}, default: [])
     field(:version, :integer, default: 1)
 
-    timestamps()
+    timestamps(inserted_at: :created_at)
   end
 
   def changeset(template, attrs) do

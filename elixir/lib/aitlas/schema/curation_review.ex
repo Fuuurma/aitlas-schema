@@ -19,7 +19,7 @@ defmodule Aitlas.Schema.CurationReview do
     belongs_to(:agent, Aitlas.Schema.Agent)
     belongs_to(:version, Aitlas.Schema.AgentVersion)
 
-    timestamps()
+    timestamps(inserted_at: :created_at)
   end
 
   @valid_statuses ~w(pending approved rejected changes_requested)

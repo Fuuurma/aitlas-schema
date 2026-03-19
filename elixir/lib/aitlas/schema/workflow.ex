@@ -18,7 +18,7 @@ defmodule Aitlas.Schema.Workflow do
 
     has_many(:executions, Aitlas.Schema.WorkflowExecution)
 
-    timestamps()
+    timestamps(inserted_at: :created_at)
   end
 
   def changeset(workflow, attrs) do

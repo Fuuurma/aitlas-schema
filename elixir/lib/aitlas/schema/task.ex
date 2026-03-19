@@ -45,7 +45,7 @@ defmodule Aitlas.Schema.Task do
     has_many(:steps, Aitlas.Schema.TaskStep)
     has_many(:tool_calls, Aitlas.Schema.ToolCall)
 
-    timestamps()
+    timestamps(inserted_at: :created_at)
   end
 
   def changeset(task, attrs) do

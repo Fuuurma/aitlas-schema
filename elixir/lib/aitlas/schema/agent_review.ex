@@ -17,7 +17,7 @@ defmodule Aitlas.Schema.AgentReview do
 
     belongs_to(:agent, Aitlas.Schema.Agent)
 
-    timestamps()
+    timestamps(inserted_at: :created_at)
   end
 
   def changeset(review, attrs) do

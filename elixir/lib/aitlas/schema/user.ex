@@ -21,7 +21,7 @@ defmodule Aitlas.Schema.User do
     has_many(:tasks, Aitlas.Schema.Task)
     has_many(:credit_ledger_entries, Aitlas.Schema.CreditLedgerEntry)
 
-    timestamps()
+    timestamps(inserted_at: :created_at)
   end
 
   def changeset(user, attrs) do

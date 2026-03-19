@@ -16,7 +16,7 @@ defmodule Aitlas.Schema.AgentVersion do
 
     belongs_to(:agent, Aitlas.Schema.Agent)
 
-    timestamps()
+    timestamps(inserted_at: :created_at)
   end
 
   def changeset(version, attrs) do

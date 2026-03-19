@@ -21,7 +21,7 @@ defmodule Aitlas.Schema.Subscription do
     belongs_to(:user, Aitlas.Schema.User, foreign_key: :user_id, define_field: false)
     belongs_to(:plan, Aitlas.Schema.Plan, foreign_key: :plan_id, define_field: false)
 
-    timestamps()
+    timestamps(inserted_at: :created_at)
   end
 
   def changeset(subscription, attrs) do

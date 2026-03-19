@@ -12,7 +12,7 @@ defmodule Aitlas.Schema.Verification do
     field(:value, :string)
     field(:expires_at, :utc_datetime)
 
-    timestamps()
+    timestamps(inserted_at: :created_at)
   end
 
   def changeset(verification, attrs) do

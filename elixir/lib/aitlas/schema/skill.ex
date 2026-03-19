@@ -20,7 +20,7 @@ defmodule Aitlas.Schema.Skill do
     field(:version, :string, default: "1.0.0")
     field(:enabled, :boolean, default: true)
 
-    timestamps()
+    timestamps(inserted_at: :created_at)
   end
 
   def changeset(skill, attrs) do

@@ -20,7 +20,7 @@ defmodule Aitlas.Schema.Provider do
 
     has_many(:models, Aitlas.Schema.Model)
 
-    timestamps()
+    timestamps(inserted_at: :created_at)
   end
 
   def changeset(provider, attrs) do

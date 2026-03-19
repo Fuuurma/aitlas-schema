@@ -16,7 +16,7 @@ defmodule Aitlas.Schema.ApiKey do
 
     belongs_to(:user, Aitlas.Schema.User, foreign_key: :user_id, define_field: false)
 
-    timestamps()
+    timestamps(inserted_at: :created_at)
   end
 
   def changeset(api_key, attrs) do

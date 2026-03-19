@@ -18,7 +18,7 @@ defmodule Aitlas.Schema.AgentAction do
 
     belongs_to(:agent, Aitlas.Schema.Agent, foreign_key: :agent_id, define_field: false)
 
-    timestamps()
+    timestamps(inserted_at: :created_at)
   end
 
   def changeset(action, attrs) do

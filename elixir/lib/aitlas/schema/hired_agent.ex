@@ -17,7 +17,7 @@ defmodule Aitlas.Schema.HiredAgent do
 
     belongs_to(:agent, Aitlas.Schema.Agent)
 
-    timestamps()
+    timestamps(inserted_at: :created_at)
   end
 
   @valid_statuses ~w(active paused expired)

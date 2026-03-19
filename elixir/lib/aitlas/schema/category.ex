@@ -15,7 +15,7 @@ defmodule Aitlas.Schema.Category do
     field(:sort_order, :integer, default: 0)
     field(:is_active, :boolean, default: true)
 
-    timestamps()
+    timestamps(inserted_at: :created_at)
   end
 
   def changeset(category, attrs) do

@@ -23,7 +23,7 @@ defmodule Aitlas.Schema.Creator do
     has_many(:earnings, Aitlas.Schema.CreatorEarning)
     has_many(:payouts, Aitlas.Schema.CreatorPayout)
 
-    timestamps()
+    timestamps(inserted_at: :created_at)
   end
 
   @valid_tiers ~w(community verified partner)

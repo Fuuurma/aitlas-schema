@@ -18,7 +18,7 @@ defmodule Aitlas.Schema.AgentSubscription do
 
     belongs_to(:agent, Aitlas.Schema.Agent)
 
-    timestamps()
+    timestamps(inserted_at: :created_at)
   end
 
   @valid_statuses ~w(active cancelled past_due)

@@ -25,7 +25,7 @@ defmodule Aitlas.Schema.Plan do
 
     has_many(:subscriptions, Aitlas.Schema.Subscription)
 
-    timestamps()
+    timestamps(inserted_at: :created_at)
   end
 
   def changeset(plan, attrs) do

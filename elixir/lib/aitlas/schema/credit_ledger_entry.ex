@@ -16,7 +16,7 @@ defmodule Aitlas.Schema.CreditLedgerEntry do
 
     belongs_to(:user, Aitlas.Schema.User, foreign_key: :user_id, define_field: false)
 
-    timestamps(updated_at: false)
+    timestamps(updated_at: false, inserted_at: :created_at)
   end
 
   def changeset(entry, attrs) do

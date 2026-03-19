@@ -54,7 +54,7 @@ defmodule Aitlas.Schema.Agent do
     has_many(:subscriptions, Aitlas.Schema.AgentSubscription)
     has_many(:run_events, Aitlas.Schema.AgentRunEvent)
 
-    timestamps()
+    timestamps(inserted_at: :created_at)
   end
 
   @valid_risk_levels ~w(safe unknown critical)

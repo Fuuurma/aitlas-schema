@@ -14,7 +14,7 @@ defmodule Aitlas.Schema.FeatureFlag do
     field(:rollout_percentage, :integer, default: 0)
     field(:conditions, :map, default: %{})
 
-    timestamps()
+    timestamps(inserted_at: :created_at)
   end
 
   def changeset(flag, attrs) do
