@@ -13,7 +13,7 @@ defmodule Nexus.Schema.User do
     field(:email_verified, :boolean, default: false)
     field(:image, :string)
     field(:compute_credits, :integer, default: 100)
-    field(:plan_tier, Ecto.Enum, values: [:free, :pro, :enterprise], default: :free)
+    field(:plan_tier, :string, default: "free")
 
     has_many(:sessions, Nexus.Schema.Session)
     has_many(:accounts, Nexus.Schema.Account)

@@ -21,7 +21,7 @@ defmodule Nexus.Schema.Task do
     field(:max_tool_calls, :integer, default: 50)
     field(:max_tokens, :integer, default: 200000)
     field(:max_runtime_ms, :integer, default: 1800000)
-    field(:status, Ecto.Enum, values: [:pending, :running, :completed, :failed, :cancelled, :stuck], default: :pending)
+    field(:status, :string, default: "pending")
     field(:iteration, :integer, default: 0)
     field(:tool_calls_made, :integer, default: 0)
     field(:tokens_used, :integer, default: 0)

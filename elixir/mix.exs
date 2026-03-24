@@ -1,21 +1,21 @@
-defmodule Nexus.Schema.MixProject do
+defmodule AitlasSchema.MixProject do
   use Mix.Project
 
   def project do
     [
-      app: :nexus_schema,
-      version: "0.2.0",
+      app: :aitlas_schema,
+      version: "0.3.0",
       elixir: "~> 1.18",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
-      description: "Shared Ecto schemas for Aitlas projects",
+      description: "Shared Ecto schemas for Aitlas ecosystem - one schema to rule them all",
       package: package()
     ]
   end
 
   def application do
     [
-      extra_applications: [:logger]
+      extra_applications: [:logger, :ecto, :ecto_sql]
     ]
   end
 
@@ -28,8 +28,8 @@ defmodule Nexus.Schema.MixProject do
 
   defp package do
     [
-      name: "nexus_schema",
-      files: ~w(lib priv .formatter.exs mix.exs README* LICENSE*),
+      name: "aitlas_schema",
+      files: ~w(lib priv *.ex mix.exs README* LICENSE*),
       licenses: ["MIT"],
       links: %{
         "GitHub" => "https://github.com/Fuuurma/aitlas-schema"
