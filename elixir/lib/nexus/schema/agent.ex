@@ -27,7 +27,10 @@ defmodule Nexus.Schema.Agent do
     field(:stars, :integer, default: 0)
     field(:forks, :integer, default: 0)
     field(:run_count, :integer, default: 0)
+    field(:total_runs, :bigint, default: 0)
+    field(:total_earnings, :decimal, default: 0)
     field(:avg_rating, :decimal)
+    field(:average_rating, :decimal, default: 0)
     field(:review_count, :integer, default: 0)
     field(:success_rate, :decimal)
     field(:image_url, :string)
@@ -43,6 +46,15 @@ defmodule Nexus.Schema.Agent do
     field(:featured_order, :integer)
     field(:version, :string)
     field(:creator_id, :binary_id)
+
+    # Soft delete
+    field(:deleted_at, :utc_datetime)
+
+    # Audit
+    field(:updated_by, :string)
+
+    # Full-text search
+    field(:search_vector, :any, virtual: true)
 
     belongs_to(:creator, Nexus.Schema.Creator, define_field: false)
 
@@ -83,7 +95,10 @@ defmodule Nexus.Schema.Agent do
       :stars,
       :forks,
       :run_count,
+      :total_runs,
+      :total_earnings,
       :avg_rating,
+      :average_rating,
       :review_count,
       :success_rate,
       :image_url,
@@ -98,12 +113,38 @@ defmodule Nexus.Schema.Agent do
       :is_verified,
       :featured_order,
       :version,
-      :creator_id
+      :creator_id,
+      :deleted_at,
+      :updated_by
     ])
     |> validate_required([:name, :category])
     |> validate_inclusion(:risk_level, @valid_risk_levels)
     |> validate_inclusion(:status, @valid_statuses)
     |> validate_inclusion(:role, @valid_roles)
+    |> validate_number(:total_runs, greater_than_or_equal_to: 0)
+    |> validate_number(:average_rating, greater_than_or_equal_to: 0, less_than_or_equal_to: 5)
     |> unique_constraint(:slug)
   end
+
+  @doc """
+  Soft delete an agent.
+  """
+  def soft_delete(agent) do
+    agent
+    |> cast(%{deleted_at: DateTime.utc_now()}, [:deleted_at])
+  end
+
+  @doc """
+  Restore a soft-deleted agent.
+  """
+  def restore(agent) do
+    agent
+    |> cast(%{deleted_at: nil}, [:deleted_at])
+  end
+
+  @doc """
+  Check if agent is deleted.
+  """
+  def deleted?(%__MODULE__{deleted_at: nil}), do: false
+  def deleted?(%__MODULE__{deleted_at: _}), do: true
 end
