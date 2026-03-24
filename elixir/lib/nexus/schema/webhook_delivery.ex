@@ -18,7 +18,7 @@ defmodule Nexus.Schema.WebhookDelivery do
 
     belongs_to(:webhook, Nexus.Schema.Webhook, foreign_key: :webhook_id, define_field: false)
 
-    timestamps(updated_at: false)
+    timestamps(updated_at: false, inserted_at: :created_at)
   end
 
   def changeset(delivery, attrs) do

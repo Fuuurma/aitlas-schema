@@ -15,7 +15,7 @@ defmodule Nexus.Schema.UserFeatureFlag do
     belongs_to(:user, Nexus.Schema.User, foreign_key: :user_id, define_field: false)
     belongs_to(:flag, Nexus.Schema.FeatureFlag, foreign_key: :flag_id, define_field: false)
 
-    timestamps(updated_at: false)
+    timestamps(updated_at: false, inserted_at: :created_at)
   end
 
   def changeset(user_flag, attrs) do

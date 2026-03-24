@@ -24,10 +24,14 @@ defmodule Nexus.Schema.User do
     timestamps(inserted_at: :created_at)
   end
 
+  @email_regex ~r/^[^\s]+@[^\s]+\.[^\s]+$/
+
   def changeset(user, attrs) do
     user
     |> cast(attrs, [:id, :name, :email, :email_verified, :image, :compute_credits, :plan_tier])
     |> validate_required([:id, :name, :email])
+    |> validate_format(:email, @email_regex, message: "must be a valid email address")
+    |> validate_length(:name, min: 1, max: 255)
     |> unique_constraint(:email)
   end
 end

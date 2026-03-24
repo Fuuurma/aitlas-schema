@@ -23,6 +23,9 @@ defmodule Nexus.Schema.PromptTemplate do
     template
     |> cast(attrs, [:id, :name, :description, :template, :variables, :category, :tags, :version])
     |> validate_required([:id, :name, :template])
+    |> validate_length(:name, min: 1, max: 255)
+    |> validate_length(:template, min: 1)
+    |> validate_number(:version, greater_than: 0)
     |> unique_constraint(:name)
   end
 end

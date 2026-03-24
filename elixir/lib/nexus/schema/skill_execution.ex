@@ -18,7 +18,7 @@ defmodule Nexus.Schema.SkillExecution do
 
     belongs_to(:skill, Nexus.Schema.Skill, foreign_key: :skill_id, define_field: false)
 
-    timestamps(updated_at: false)
+    timestamps(updated_at: false, inserted_at: :created_at)
   end
 
   def changeset(execution, attrs) do

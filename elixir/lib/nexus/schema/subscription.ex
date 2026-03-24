@@ -24,11 +24,16 @@ defmodule Nexus.Schema.Subscription do
     timestamps(inserted_at: :created_at)
   end
 
+  @valid_statuses ~w(active cancelled past_due expired trialing)
+
   def changeset(subscription, attrs) do
     subscription
     |> cast(attrs, [:id, :user_id, :plan_id, :status, :stripe_subscription_id,
                     :stripe_customer_id, :current_period_start, :current_period_end,
                     :cancel_at_period_end, :cancelled_at])
     |> validate_required([:id, :user_id, :plan_id])
+    |> validate_inclusion(:status, @valid_statuses)
+    |> foreign_key_constraint(:user_id)
+    |> foreign_key_constraint(:plan_id)
   end
 end

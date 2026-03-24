@@ -33,6 +33,7 @@ defmodule Nexus.Schema.AgentReview do
     ])
     |> validate_required([:user_id, :rating])
     |> validate_inclusion(:rating, 1..5)
+    |> validate_length(:body, max: 5000)
     |> foreign_key_constraint(:agent_id)
     |> unique_constraint([:agent_id, :user_id])
   end

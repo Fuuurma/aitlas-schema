@@ -35,5 +35,10 @@ defmodule Nexus.Schema.Plan do
                     :stripe_product_id, :stripe_price_monthly_id, :stripe_price_yearly_id,
                     :is_active, :is_default])
     |> validate_required([:id, :name])
+    |> validate_number(:price_monthly, greater_than_or_equal_to: 0)
+    |> validate_number(:price_yearly, greater_than_or_equal_to: 0)
+    |> validate_number(:credits_included, greater_than_or_equal_to: 0)
+    |> validate_number(:credits_per_month, greater_than_or_equal_to: 0)
+    |> unique_constraint(:name)
   end
 end

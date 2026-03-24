@@ -23,10 +23,14 @@ defmodule Nexus.Schema.Provider do
     timestamps(inserted_at: :created_at)
   end
 
+  @url_format ~r/^https?:\/\/.+/
+
   def changeset(provider, attrs) do
     provider
     |> cast(attrs, [:id, :name, :display_name, :description, :base_url, :api_key_env, 
                     :rate_limit_rpm, :rate_limit_tpm, :enabled, :config])
     |> validate_required([:id, :name])
+    |> validate_format(:base_url, @url_format, allow_nil: true, message: "must be a valid HTTP/HTTPS URL")
+    |> unique_constraint(:name)
   end
 end

@@ -24,5 +24,8 @@ defmodule Nexus.Schema.AgentMcpTool do
     tool
     |> cast(attrs, [:agent_id, :name, :description, :input_schema, :credit_cost, :is_enabled])
     |> validate_required([:agent_id, :name])
+    |> validate_length(:name, min: 1, max: 255)
+    |> validate_number(:credit_cost, greater_than_or_equal_to: 0)
+    |> unique_constraint([:agent_id, :name], name: :agent_mcp_tools_agent_id_name_index)
   end
 end

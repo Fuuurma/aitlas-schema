@@ -18,10 +18,13 @@ defmodule Nexus.Schema.LlmProvider do
     timestamps(inserted_at: :created_at)
   end
 
+  @url_format ~r/^https?:\/\/.+/
+
   def changeset(provider, attrs) do
     provider
     |> cast(attrs, [:slug, :name, :display_name, :website_url, :is_active, :sort_order])
     |> validate_required([:slug, :name, :display_name])
+    |> validate_format(:website_url, @url_format, allow_nil: true, message: "must be a valid HTTP/HTTPS URL")
     |> unique_constraint(:slug)
   end
 end

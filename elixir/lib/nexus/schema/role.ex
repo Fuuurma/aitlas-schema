@@ -19,10 +19,14 @@ defmodule Nexus.Schema.Role do
     timestamps(inserted_at: :created_at)
   end
 
+  @slug_format ~r/^[a-z0-9]+(?:-[a-z0-9]+)*$/
+
   def changeset(role, attrs) do
     role
     |> cast(attrs, [:slug, :name, :display_name, :description, :keywords, :sort_order, :is_active])
     |> validate_required([:slug, :name, :display_name])
+    |> validate_format(:slug, @slug_format, message: "must be lowercase alphanumeric with hyphens")
+    |> validate_length(:name, min: 1, max: 100)
     |> unique_constraint(:slug)
   end
 end

@@ -26,5 +26,7 @@ defmodule Nexus.Schema.Workflow do
     |> cast(attrs, [:id, :name, :description, :definition, :triggers,
                     :input_schema, :output_schema, :enabled])
     |> validate_required([:id, :name, :definition])
+    |> validate_length(:name, min: 1, max: 255)
+    |> unique_constraint(:name)
   end
 end

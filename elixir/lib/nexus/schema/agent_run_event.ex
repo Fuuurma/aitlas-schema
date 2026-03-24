@@ -17,7 +17,7 @@ defmodule Nexus.Schema.AgentRunEvent do
 
     belongs_to(:agent, Nexus.Schema.Agent)
 
-    timestamps(updated_at: false)
+    timestamps(updated_at: false, inserted_at: :created_at)
   end
 
   @valid_statuses ~w(completed failed stuck timeout)
@@ -27,6 +27,8 @@ defmodule Nexus.Schema.AgentRunEvent do
     |> cast(attrs, [:task_id, :user_id, :version, :status, :credits_used, :duration_ms, :agent_id])
     |> validate_required([:task_id, :user_id, :version, :status])
     |> validate_inclusion(:status, @valid_statuses)
+    |> validate_number(:credits_used, greater_than_or_equal_to: 0, allow_nil: true)
+    |> validate_number(:duration_ms, greater_than_or_equal_to: 0, allow_nil: true)
     |> foreign_key_constraint(:agent_id)
   end
 end

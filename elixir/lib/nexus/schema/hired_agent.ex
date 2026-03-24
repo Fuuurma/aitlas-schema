@@ -35,6 +35,7 @@ defmodule Nexus.Schema.HiredAgent do
     ])
     |> validate_required([:user_id, :agent_id])
     |> validate_inclusion(:status, @valid_statuses)
+    |> validate_number(:total_runs, greater_than_or_equal_to: 0)
     |> foreign_key_constraint(:agent_id)
     |> unique_constraint([:user_id, :agent_id])
   end

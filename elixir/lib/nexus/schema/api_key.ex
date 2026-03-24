@@ -19,9 +19,13 @@ defmodule Nexus.Schema.ApiKey do
     timestamps(inserted_at: :created_at)
   end
 
+  @valid_providers ~w(openai anthropic google cohere mistral openrouter custom)
+
   def changeset(api_key, attrs) do
     api_key
     |> cast(attrs, [:user_id, :provider, :encrypted_key, :iv, :hint])
     |> validate_required([:user_id, :provider, :encrypted_key, :iv])
+    |> validate_inclusion(:provider, @valid_providers)
+    |> unique_constraint([:user_id, :provider], name: :api_keys_user_id_provider_index)
   end
 end

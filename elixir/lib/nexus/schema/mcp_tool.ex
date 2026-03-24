@@ -18,12 +18,14 @@ defmodule Nexus.Schema.McpTool do
 
     belongs_to(:server, Nexus.Schema.McpServer, foreign_key: :server_id, define_field: false)
 
-    timestamps(updated_at: false)
+    timestamps(updated_at: false, inserted_at: :created_at)
   end
 
   def changeset(tool, attrs) do
     tool
     |> cast(attrs, [:id, :server_id, :name, :description, :input_schema, :output_schema, :annotations, :enabled])
     |> validate_required([:id, :server_id, :name, :input_schema])
+    |> validate_length(:name, min: 1, max: 255)
+    |> unique_constraint([:server_id, :name], name: :mcp_tools_server_id_name_index)
   end
 end

@@ -23,7 +23,7 @@ defmodule Nexus.Schema.Model do
 
     belongs_to(:provider, Nexus.Schema.Provider, foreign_key: :provider_id, define_field: false)
 
-    timestamps(updated_at: false)
+    timestamps(updated_at: false, inserted_at: :created_at)
   end
 
   def changeset(model, attrs) do
@@ -33,5 +33,10 @@ defmodule Nexus.Schema.Model do
                     :supports_vision, :supports_tools, :supports_streaming, 
                     :capabilities, :enabled])
     |> validate_required([:id, :provider_id, :name])
+    |> validate_number(:context_window, greater_than: 0)
+    |> validate_number(:max_output_tokens, greater_than: 0)
+    |> validate_number(:input_cost_per_1k, greater_than_or_equal_to: 0)
+    |> validate_number(:output_cost_per_1k, greater_than_or_equal_to: 0)
+    |> unique_constraint([:provider_id, :name], name: :models_provider_id_name_index)
   end
 end

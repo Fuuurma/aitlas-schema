@@ -37,6 +37,7 @@ defmodule Nexus.Schema.AgentSubscription do
     ])
     |> validate_required([:user_id, :price_cents])
     |> validate_inclusion(:status, @valid_statuses)
+    |> validate_number(:price_cents, greater_than: 0)
     |> foreign_key_constraint(:agent_id)
     |> unique_constraint(:stripe_sub_id)
   end

@@ -21,13 +21,16 @@ defmodule Nexus.Schema.WorkflowExecution do
 
     belongs_to(:workflow, Nexus.Schema.Workflow, foreign_key: :workflow_id, define_field: false)
 
-    timestamps(updated_at: false)
+    timestamps(updated_at: false, inserted_at: :created_at)
   end
+
+  @valid_statuses ~w(pending running completed failed cancelled)
 
   def changeset(execution, attrs) do
     execution
     |> cast(attrs, [:id, :workflow_id, :user_id, :status, :input, :output,
                     :error, :current_step, :context, :started_at, :completed_at])
     |> validate_required([:id, :workflow_id])
+    |> validate_inclusion(:status, @valid_statuses)
   end
 end

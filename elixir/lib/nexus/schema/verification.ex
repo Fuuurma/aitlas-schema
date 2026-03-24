@@ -19,5 +19,16 @@ defmodule Nexus.Schema.Verification do
     verification
     |> cast(attrs, [:id, :identifier, :value, :expires_at])
     |> validate_required([:id, :identifier, :value, :expires_at])
+    |> validate_future_datetime(:expires_at)
+    |> unique_constraint([:identifier, :value], name: :verifications_identifier_value_index)
+  end
+
+  defp validate_future_datetime(changeset, field) do
+    validate_change(changeset, field, fn ^field, datetime ->
+      case DateTime.compare(datetime, DateTime.utc_now()) do
+        :lt -> [{field, "must be in the future"}]
+        _ -> []
+      end
+    end)
   end
 end

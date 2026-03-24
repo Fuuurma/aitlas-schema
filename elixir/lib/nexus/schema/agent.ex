@@ -27,7 +27,7 @@ defmodule Nexus.Schema.Agent do
     field(:stars, :integer, default: 0)
     field(:forks, :integer, default: 0)
     field(:run_count, :integer, default: 0)
-    field(:total_runs, :bigint, default: 0)
+    field(:total_runs, :integer, default: 0)
     field(:total_earnings, :decimal, default: 0)
     field(:avg_rating, :decimal)
     field(:average_rating, :decimal, default: 0)
@@ -72,6 +72,7 @@ defmodule Nexus.Schema.Agent do
   @valid_risk_levels ~w(safe unknown critical)
   @valid_statuses ~w(draft review published unlisted deprecated removed)
   @valid_roles ~w(researcher coder analyst writer operator trader guardian assistant advisor)
+  @slug_format ~r/^[a-z0-9]+(?:-[a-z0-9]+)*$/
 
   def changeset(agent, attrs) do
     agent
@@ -118,11 +119,15 @@ defmodule Nexus.Schema.Agent do
       :updated_by
     ])
     |> validate_required([:name, :category])
+    |> validate_format(:slug, @slug_format, allow_nil: true, message: "must be lowercase alphanumeric with hyphens")
+    |> validate_length(:name, min: 1, max: 255)
+    |> validate_length(:description, max: 500)
     |> validate_inclusion(:risk_level, @valid_risk_levels)
     |> validate_inclusion(:status, @valid_statuses)
     |> validate_inclusion(:role, @valid_roles)
     |> validate_number(:total_runs, greater_than_or_equal_to: 0)
     |> validate_number(:average_rating, greater_than_or_equal_to: 0, less_than_or_equal_to: 5)
+    |> validate_number(:price, greater_than_or_equal_to: 0)
     |> unique_constraint(:slug)
   end
 

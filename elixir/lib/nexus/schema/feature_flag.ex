@@ -21,6 +21,7 @@ defmodule Nexus.Schema.FeatureFlag do
     flag
     |> cast(attrs, [:id, :name, :description, :enabled, :rollout_percentage, :conditions])
     |> validate_required([:id, :name])
+    |> validate_number(:rollout_percentage, greater_than_or_equal_to: 0, less_than_or_equal_to: 100)
     |> unique_constraint(:name)
   end
 end

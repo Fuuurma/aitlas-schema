@@ -15,7 +15,7 @@ defmodule Nexus.Schema.CreditRate do
 
     belongs_to(:model, Nexus.Schema.Model, foreign_key: :model_id, define_field: false)
 
-    timestamps(updated_at: false)
+    timestamps(updated_at: false, inserted_at: :created_at)
   end
 
   def changeset(rate, attrs) do

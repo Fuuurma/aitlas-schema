@@ -23,12 +23,16 @@ defmodule Nexus.Schema.Skill do
     timestamps(inserted_at: :created_at)
   end
 
+  @version_format ~r/^\d+\.\d+\.\d+(-[a-zA-Z0-9]+)?$/
+
   def changeset(skill, attrs) do
     skill
     |> cast(attrs, [:id, :name, :display_name, :description, :category, :tags,
                     :required_tools, :optional_tools, :config_schema, :default_config,
                     :version, :enabled])
     |> validate_required([:id, :name])
+    |> validate_length(:name, min: 1, max: 255)
+    |> validate_format(:version, @version_format, allow_nil: true)
     |> unique_constraint(:name)
   end
 end

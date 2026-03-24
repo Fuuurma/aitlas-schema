@@ -23,5 +23,8 @@ defmodule Nexus.Schema.SystemPrompt do
     prompt
     |> cast(attrs, [:id, :name, :description, :content, :variables, :category, :tags, :version])
     |> validate_required([:id, :name, :content])
+    |> validate_length(:name, min: 1, max: 255)
+    |> validate_length(:content, min: 1)
+    |> validate_number(:version, greater_than: 0)
   end
 end

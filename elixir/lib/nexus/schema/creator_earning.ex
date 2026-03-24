@@ -18,7 +18,7 @@ defmodule Nexus.Schema.CreatorEarning do
     belongs_to(:agent, Nexus.Schema.Agent)
     belongs_to(:payout, Nexus.Schema.CreatorPayout)
 
-    timestamps(updated_at: false)
+    timestamps(updated_at: false, inserted_at: :created_at)
   end
 
   @valid_sources ~w(subscription payout)

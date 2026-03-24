@@ -25,5 +25,8 @@ defmodule Nexus.Schema.AgentAction do
     action
     |> cast(attrs, [:agent_id, :name, :description, :mcp_endpoint, :action_schema, :credit_cost, :version])
     |> validate_required([:agent_id, :name])
+    |> validate_length(:name, min: 1, max: 255)
+    |> validate_number(:credit_cost, greater_than_or_equal_to: 0)
+    |> unique_constraint([:agent_id, :name], name: :agent_actions_agent_id_name_index)
   end
 end

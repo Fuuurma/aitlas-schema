@@ -18,7 +18,7 @@ defmodule Nexus.Schema.CreatorPayout do
     belongs_to(:creator, Nexus.Schema.Creator)
     has_many(:earnings, Nexus.Schema.CreatorEarning, foreign_key: :payout_id)
 
-    timestamps(updated_at: false)
+    timestamps(updated_at: false, inserted_at: :created_at)
   end
 
   @valid_statuses ~w(pending paid failed)

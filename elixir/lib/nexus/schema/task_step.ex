@@ -17,7 +17,7 @@ defmodule Nexus.Schema.TaskStep do
 
     belongs_to(:task, Nexus.Schema.Task, foreign_key: :task_id, define_field: false)
 
-    timestamps(updated_at: false)
+    timestamps(updated_at: false, inserted_at: :created_at)
   end
 
   def changeset(step, attrs) do

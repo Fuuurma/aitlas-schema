@@ -18,7 +18,7 @@ defmodule Nexus.Schema.ToolCall do
 
     belongs_to(:task, Nexus.Schema.Task, foreign_key: :task_id, define_field: false)
 
-    timestamps(updated_at: false)
+    timestamps(updated_at: false, inserted_at: :created_at)
   end
 
   def changeset(tool_call, attrs) do

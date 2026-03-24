@@ -48,6 +48,8 @@ defmodule Nexus.Schema.Task do
     timestamps(inserted_at: :created_at)
   end
 
+  @valid_statuses ~w(pending running completed failed stuck cancelled)
+
   def changeset(task, attrs) do
     task
     |> cast(attrs, [
@@ -60,5 +62,11 @@ defmodule Nexus.Schema.Task do
       :replay_of_task_id, :fork_from_step
     ])
     |> validate_required([:user_id, :agent_slug, :goal, :provider])
+    |> validate_inclusion(:status, @valid_statuses)
+    |> validate_number(:credit_budget, greater_than_or_equal_to: 0, allow_nil: true)
+    |> validate_number(:max_iterations, greater_than: 0)
+    |> validate_number(:max_tool_calls, greater_than: 0)
+    |> validate_number(:max_tokens, greater_than: 0)
+    |> validate_number(:max_runtime_ms, greater_than: 0)
   end
 end

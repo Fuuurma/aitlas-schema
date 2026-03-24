@@ -17,12 +17,15 @@ defmodule Nexus.Schema.McpResource do
 
     belongs_to(:server, Nexus.Schema.McpServer, foreign_key: :server_id, define_field: false)
 
-    timestamps(updated_at: false)
+    timestamps(updated_at: false, inserted_at: :created_at)
   end
 
   def changeset(resource, attrs) do
     resource
     |> cast(attrs, [:id, :server_id, :uri, :name, :description, :mime_type, :size_bytes])
     |> validate_required([:id, :server_id, :uri, :name])
+    |> validate_length(:uri, min: 1, max: 2048)
+    |> validate_length(:name, min: 1, max: 255)
+    |> unique_constraint([:server_id, :uri], name: :mcp_resources_server_id_uri_index)
   end
 end

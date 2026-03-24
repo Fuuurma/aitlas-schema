@@ -22,14 +22,19 @@ defmodule Nexus.Schema.McpServer do
     has_many(:tools, Nexus.Schema.McpTool, foreign_key: :server_id)
     has_many(:resources, Nexus.Schema.McpResource, foreign_key: :server_id)
 
-    timestamps(updated_at: false)
+    timestamps(updated_at: false, inserted_at: :created_at)
   end
+
+  @valid_transports ~w(stdio http sse)
+  @url_format ~r/^https?:\/\/.+/
 
   def changeset(server, attrs) do
     server
     |> cast(attrs, [:id, :name, :display_name, :description, :transport, :command,
                     :args, :env, :url, :enabled, :auto_start])
     |> validate_required([:id, :name, :transport])
+    |> validate_inclusion(:transport, @valid_transports)
+    |> validate_format(:url, @url_format, allow_nil: true, message: "must be a valid HTTP/HTTPS URL")
     |> unique_constraint(:name)
   end
 end
